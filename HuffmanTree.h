@@ -23,13 +23,17 @@ public:
 	~HuffmanTree();
 	Node* findNode(uint8_t c);
 	bool isNYT(Node* node);
+	Node* getNYT();
 	void updateHuffmanTree(Node* foundNode, uint8_t c);
+	std::string getCode(Node* node);
 };
 
 HuffmanTree::HuffmanTree() {
+	// Clear nodes array
 	for (uint i = 0; i < NODES; i++) {
 		nodes[i] = nullptr;
 	}
+	// Insert NYT into empty tree
 	this->NYT  = new Node { NODES - 1, 0, 0, nullptr, true };
 	nodes[NYT->index] = NYT;
 }
@@ -56,27 +60,22 @@ bool HuffmanTree::isNYT(Node* node) {
 	return (node == this->NYT);
 }
 
+Node* HuffmanTree::getNYT() {
+	return this->NYT;
+}
+
 void HuffmanTree::updateHuffmanTree(Node* foundNode, uint8_t c) {
 	// First appearance for symbol
 	if (foundNode == this->NYT) {
-		//if (this->leaves.size() < N - 1) {
-			// Split NYT into two leaves - NYT and the new value
-			Node* leftLeaf  = new Node { foundNode->index - 2, 0, 0, foundNode, true };
-			Node* rightLeaf = new Node { foundNode->index - 1, 1, c, foundNode, false };
-			foundNode->freq = 1;
-			this->nodes[leftLeaf->index] = leftLeaf;
-			this->nodes[rightLeaf->index] = rightLeaf;
-			this->leaves[c] = rightLeaf;
-			// Change current NYT to the left child
-			this->NYT = leftLeaf;
-		/*} else {
-			// Change NYT into leaf, Huffman Tree is now fully initialized
-			foundNode->freq = 1;
-			foundNode->value = c;
-			this->leaves[c] = foundNode;
-			// Change pointer to NYT to nullptr
-			this->NYT = nullptr;
-		}*/
+		// Split NYT into two leaves - NYT and the new value
+		Node* leftLeaf  = new Node { foundNode->index - 2, 0, 0, foundNode, true };
+		Node* rightLeaf = new Node { foundNode->index - 1, 1, c, foundNode, false };
+		foundNode->freq = 1;
+		this->nodes[leftLeaf->index] = leftLeaf;
+		this->nodes[rightLeaf->index] = rightLeaf;
+		this->leaves[c] = rightLeaf;
+		// Change current NYT to the left child
+		this->NYT = leftLeaf;
 		// Goto parent node
 		foundNode = foundNode->parent;
 	}
@@ -114,7 +113,15 @@ void HuffmanTree::updateHuffmanTree(Node* foundNode, uint8_t c) {
 		// Goto parent node
 		foundNode = foundNode->parent;
 	}
+}
 
+std::string HuffmanTree::getCode(Node* node) {
+	std::string path = "";
+	while (node->parent != nullptr) {
+		path = (node->isLeft ? '1' : '0') + path;
+		node = node->parent;
+	}
+	return path;
 }
 
 #endif

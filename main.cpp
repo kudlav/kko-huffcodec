@@ -84,16 +84,6 @@ bool parseArguments(int argc, char* argv[]) {
 }
 
 
-std::string getPath(Node* node) {
-	std::string path = "";
-	while (node->parent != nullptr) {
-		path = (node->isLeft ? '1' : '0') + path;
-		node = node->parent;
-	}
-	return path;
-}
-
-
 int main(int argc, char* argv[]) {
 
 	// Read input
@@ -119,14 +109,14 @@ int main(int argc, char* argv[]) {
 	}
 
 	while (iFile.good()) {
-		// Encode
 		Node* foundNode = tree.findNode(c);
 
+		// Encode
+		oFile << tree.getCode(foundNode);
 		if (tree.isNYT(foundNode)) {
-			oFile << "NYT: " << std::to_string(c) << std::endl;
-		} else {
-			oFile << getPath(foundNode) << std::endl;
+			oFile << ": " << std::to_string(c);
 		}
+		oFile << std::endl;
 
 		// Update Huffman Tree
 		tree.updateHuffmanTree(foundNode, c);
@@ -134,6 +124,10 @@ int main(int argc, char* argv[]) {
 		// Load next symbol
 		c = iFile.get();
 	}
+
+	// Add EOF (symbol 256)
+	oFile << tree.getCode(tree.getNYT());
+	oFile << ": " << std::to_string(N);
 
 	iFile.close();
 	oFile.close();
